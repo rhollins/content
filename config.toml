@@ -1,0 +1,57 @@
+baseURL = "https://rhollins.github.io/content/"
+languageCode = "en-us"
+title = "Rafal Hollins"
+theme = "m10c"
+
+[taxonomies]
+   tag = "tags"
+
+[params]
+  author = "Rafal Hollins"
+  description = "#DevOps #Azure #Kubernetes #DataEngineering #Golang #CloudArchitecture"
+  menu_item_separator = " - "
+
+  [[params.social]]
+    icon = "github"
+    name = "GitHub"
+    url = "https://github.com/rhollins"
+
+  [[params.social]]
+    icon = "twitter"
+    name = "Twitter"
+    url = "https://twitter.com/RafalHollins"
+
+  [[params.social]]
+    icon = "linkedin"
+    name = "linkedin"
+    url = "https://www.linkedin.com/in/rafalhollins/"
+
+  # Default theme
+  [params.style]
+   darkestColor = "#242930"
+   darkColor = "#353b43"
+   lightColor = "#c6c9cc"
+   lightestColor = "#ffffff"
+   primaryColor = "#8bbcf3"
+  #  primaryColor = "#57cc8a"
+
+  # Green theme
+  #[params.style]
+  #  darkestColor = "#315659"
+  #  darkColor = "#253031"
+  #  lightColor = "#96a879"
+  #  lightestColor = "#fff"
+  #  primaryColor = "#dad865"
+
+  # Red theme
+  #[params.style]
+  #  darkestColor = "#d35050"
+  #  darkColor = "#212121"
+  #  lightColor = "#d6d6d6"
+  #  lightestColor = "#d3d3d3"
+  #  primaryColor = "#ffffff"
+
+#   [[menu.main]]
+#     identifier = "tags"
+#     name = "Tags"
+#     url = "/tags/"
