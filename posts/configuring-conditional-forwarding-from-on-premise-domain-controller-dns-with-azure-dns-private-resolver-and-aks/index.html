@@ -1,0 +1,166 @@
+<!doctype html><html lang=en-us><head><title>Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS // Rafal Hollins</title><link rel="shortcut icon" href=/favicon.ico><meta charset=utf-8><meta name=generator content="Hugo 0.105.0"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Rafal Hollins"><meta name=description content><link rel=stylesheet href=/content/css/main.min.b9b1dbd0fbc1ad40722a8f9975659bc55261a97d436578ef9c15f71e8223c0cd.css><meta name=twitter:card content="summary"><meta name=twitter:title content="Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS"><meta name=twitter:description content="In this article, we will see how to resolve names of the K8s services running in AKS (Azure Kubernetes Service) from an on-premise desktop or server which is using DNS server running as part Active Directory Domain Controller. The assumption is that the company has a private connection with Azure using offerings like Expressroute.
+We will also make use of Azure DNS Private Resolver which is quite a new PAAS solution and also allow us to use Conditional Forwarding from on-premise DC where before we would have to use some other target DNS server like for example custom CoreDNS deployed with etcd as backend in K8s which would be propagated by External DNS."><meta property="og:title" content="Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS"><meta property="og:description" content="In this article, we will see how to resolve names of the K8s services running in AKS (Azure Kubernetes Service) from an on-premise desktop or server which is using DNS server running as part Active Directory Domain Controller. The assumption is that the company has a private connection with Azure using offerings like Expressroute.
+We will also make use of Azure DNS Private Resolver which is quite a new PAAS solution and also allow us to use Conditional Forwarding from on-premise DC where before we would have to use some other target DNS server like for example custom CoreDNS deployed with etcd as backend in K8s which would be propagated by External DNS."><meta property="og:type" content="article"><meta property="og:url" content="https://rhollins.github.io/content/posts/configuring-conditional-forwarding-from-on-premise-domain-controller-dns-with-azure-dns-private-resolver-and-aks/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-11-06T18:31:41+00:00"><meta property="article:modified_time" content="2022-11-06T18:31:41+00:00"></head><body><header class=app-header><a href=https://rhollins.github.io/content/><img class=app-header-avatar src=/content/avatar.jpg alt="Rafal Hollins"></a>
+<span class=app-header-title>Rafal Hollins</span><p>#DevOps #Azure #Kubernetes #DataEngineering #Golang #CloudArchitecture</p><div class=app-header-social><a href=https://github.com/rhollins target=_blank rel="noreferrer noopener me"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github"><title>GitHub</title><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg></a><a href=https://twitter.com/RafalHollins target=_blank rel="noreferrer noopener me"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter"><title>Twitter</title><path d="M23 3a10.9 10.9.0 01-3.14 1.53 4.48 4.48.0 00-7.86 3v1A10.66 10.66.0 013 4s-4 9 5 13a11.64 11.64.0 01-7 2c9 5 20 0 20-11.5a4.5 4.5.0 00-.08-.83A7.72 7.72.0 0023 3z"/></svg></a><a href=https://www.linkedin.com/in/rafalhollins/ target=_blank rel="noreferrer noopener me"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin"><title>linkedin</title><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></div></header><main class=app-container><article class=post><header class=post-header><h1 class=post-title>Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS</h1><div class=post-meta><div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar"><title>calendar</title><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Nov 6, 2022</div><div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock"><title>clock</title><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>8 min read</div><div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag"><title>tag</title><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a class=tag href=https://rhollins.github.io/content/tags/azure/>azure</a>
+<a class=tag href=https://rhollins.github.io/content/tags/aks/>aks</a>
+<a class=tag href=https://rhollins.github.io/content/tags/dns/>dns</a>
+<a class=tag href=https://rhollins.github.io/content/tags/nginx/>nginx</a>
+<a class=tag href=https://rhollins.github.io/content/tags/externaldns/>externaldns</a>
+<a class=tag href=https://rhollins.github.io/content/tags/activedirectory/>activedirectory</a></div></div></header><div class=post-content><p><img src=../../img/1/header.jpg alt></p><p>In this article, we will see how to resolve names of the K8s services running in <a href=https://azure.microsoft.com/en-us/products/kubernetes-service/#overview>AKS</a> (Azure Kubernetes Service) from an on-premise desktop or server which is using DNS server running as part Active Directory Domain Controller.
+The assumption is that the company has a private connection with Azure using offerings like Expressroute.</p><p>We will also make use of <a href=https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview>Azure DNS Private Resolver</a> which is quite a new PAAS solution and also allow us to use Conditional Forwarding from on-premise DC where before we would have to use some other target DNS server like for example custom <a href=https://coredns.io/>CoreDNS</a> deployed with etcd as backend in K8s which would be propagated by <a href=https://github.com/kubernetes-sigs/external-dns>External DNS</a>. With Azure DNS Private Resolver we can also utilize Azure private DNS zone which will be also integrated with External DNS running in AKS.</p><p>Here are some of the components we will be using and configuring:</p><ul><li>Azure DNS private resolver, DNS forwarding ruleset, Azure private DNS zone</li><li>AKS deployed in a subnet with Azure Container Networking Interface (CNI)</li><li>NGINX ingress controller and External DNS installed in K8s</li><li>Active Directory Domain Controller with DNS service</li></ul><p>In our lab, we will use only one VNet and deploy DC (with DNS service) in one of the subnets from which we will test the name resolution of our AKS service. However, in a real-life scenario, you probably want to consider multiple VNets (like hub one for example) also worth to mention this solution will also work if your DC is not on-premise but in Azure.</p><h3 id=create-vnet>Create VNet</h3><p>Create the following subnets:</p><ul><li><strong>aks-subnet</strong> - this is where AKS pods and services IPs will be deployed</li><li><strong>dc-subnet</strong> - where we will deploy a domain controller</li><li><strong>snet-inbound-subnet</strong> - inbound private resolver subnet where we will have conditional forwarding IP</li><li><strong>snet-outbound-subnet</strong> - outbound private resolver subnet used when we try to resolve the on-premise address from AKS</li></ul><p>We are using azure cli for most of deployments rest will be done in Azure portal.</p><pre><code>az network vnet create \
+    --name main-vnet \
+    --resource-group dns-rg \
+    --location eastus \
+    --address-prefix 10.0.0.0/16 \
+    --subnet-name aks-subnet \
+    --subnet-prefixes 10.0.1.0/24
+
+az network vnet subnet create \
+    --address-prefix 10.0.2.0/24 \
+    --name dc-subnet \
+    --resource-group dns-rg \
+    --vnet-name main-vnet
+
+az network vnet subnet create \
+    --address-prefix 10.0.0.0/28 \
+    --name snet-inbound-subnet \
+    --resource-group dns-rg \
+    --vnet-name main-vnet
+
+az network vnet subnet create \
+    --address-prefix 10.0.0.16/28 \
+    --name snet-outbound-subnet \
+    --resource-group dns-rg \
+    --vnet-name main-vnet
+</code></pre><h3 id=deploy-aks>Deploy AKS</h3><p>Ensure to enable managed identity which we will use to grant permissions to various resources used by AKS.</p><pre><code>az aks create \
+    -g dns-rg\
+    -n aks-dev \
+    --enable-managed-identity \
+    --load-balancer-sku standard \
+    --node-count 1 \
+    --generate-ssh-keys \
+    --network-plugin azure \
+    --vnet-subnet-id /subscriptions/&lt;subscription id&gt;/resourceGroups/dns-rg/providers/Microsoft.Network/virtualNetworks/main-vnet/subnets/aks-subnet \
+    --docker-bridge-address 172.17.0.1/16 \
+    --dns-service-ip 10.2.0.10 \
+    --service-cidr 10.2.0.0/24 \
+    --node-vm-size Standard_B2s
+</code></pre><h3 id=create-azure-private-dns-zone>Create Azure private DNS zone</h3><p>In our case, we will name AKS dns zone <strong>example.com</strong> but in real life, you should use a more specific name like for example <strong>k8s.companyname.com</strong> or even per environment <strong>dev.k8s.companyname.com</strong>.
+Then we link DNS zone with VNet so that resources inside this VNet are aware of the DNS zone.</p><pre><code>az network private-dns zone create -g dns-rg -n example.com
+
+az network private-dns link vnet create \
+    -g dns-rg \
+    -n mylink \
+    -z example.com \
+    -v main-vnet \
+    --registration-enabled false
+</code></pre><h3 id=deploy-nginx-ingress-controller>Deploy NGINX ingress controller</h3><p>Before we can deploy anything you need to get access credentials for AKS:</p><pre><code>az aks get-credentials --name aks-dev --resource-group dns-rg --overwrite-existing --admin
+</code></pre><p>Also to make working with K8s much easier especially when you are new to this subject I highly recommend <a href=https://code.visualstudio.com/>Visual Studio Code</a> with <a href="https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools">Kubernetes extension</a>, it offers a graphical interface so you don&rsquo;t need to know all the kubectl commands upfront.</p><p>First, we have to assign appropriate roles to managed identity which is used by AKS so that when we create K8s service for NGINX ingress controller Azure will be able to allocate IP inside our aks subnet.</p><pre><code>export AZ_PRINCIPAL_ID=$(
+    az aks show -g dns-rg -n aks-dev \
+        --query &quot;identity.principalId&quot; \
+        --output tsv
+)
+
+az role assignment create --role &quot;Reader&quot; --assignee $AZ_PRINCIPAL_ID --scope /subscriptions/&lt;subscription id&gt;/resourceGroups/dns-rg
+az role assignment create --role &quot;Network Contributor&quot; --assignee $AZ_PRINCIPAL_ID --scope /subscriptions/&lt;subscription id&gt;/resourceGroups/dns-rg/providers/Microsoft.Network/virtualNetworks/main-vnet
+</code></pre><p>Before we deploy NGINX ingress controller create this Helm values file, it will instruct AKS to create an internal load balancer and allocate static IP to it.</p><p>Content of the file <strong>internal-ingress.yaml</strong></p><pre><code>controller:
+    service:
+        loadBalancerIP: 10.0.1.251
+        annotations:
+            service.beta.kubernetes.io/azure-load-balancer-internal: &quot;true&quot;
+</code></pre><p>Now we deploy NGINX ingress controller using helm, everything will be deployed in <strong>default</strong> namespace:</p><pre><code>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+    --namespace default \
+    --set controller.service.annotations.&quot;service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path&quot;=/healthz \
+    -f internal-ingress.yaml
+</code></pre><p>Once finished you should check if the service load balancer IP has been created.</p><h3 id=deploy-external-dns>Deploy External DNS</h3><p>Before we deploy External DNS we need to provide access to managed identity assigned to AKS to the Private Azure DNS zone so that it can create new records.</p><pre><code>export AZ_PRINCIPAL_ID=$(
+    az aks show -g dns-rg -n aks-dev \
+        --query &quot;identityProfile.kubeletidentity.objectId&quot; \
+        --output tsv
+)
+
+az role assignment create --role &quot;Private DNS Zone Contributor&quot; --assignee $AZ_PRINCIPAL_ID --scope /subscriptions/&lt;subscription id&gt;/resourceGroups/dns-rg/providers/Microsoft.Network/privateDnsZones/example.com
+</code></pre><p>Before we deploy External DNS create this Helm values file, it will be used among other things to create a secret which external DNS will use to reach Azure private DNS zone.</p><p>content of the file <strong>external-dns.yaml</strong></p><pre><code>provider: azure-private-dns
+azure:
+    resourceGroup: &quot;dns-rg&quot;
+    tenantId: &quot;&lt;azure tenant id&gt;&quot;
+    subscriptionId: &quot;&lt;subscription id&gt;&quot;
+    useManagedIdentityExtension: true
+logLevel: debug
+domainFilters:
+    - example.com
+txtOwnerId: external-dns
+interval: &quot;10s&quot;
+</code></pre><p>Now we will use helm to deploy external DNS into default namespace:</p><pre><code>helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install external-dns bitnami/external-dns \
+    --namespace default \
+    -f external-dns.yaml
+</code></pre><p>Once deployed check external dns pod logs and look for any errors the refresh is set to 10s so you should be able to see straight away if something is wrong.</p><h3 id=deploy-sample-appplication>Deploy sample appplication</h3><p>Now its time to deploy our sample application and check if the DNS record will be created.</p><p>Create the following file.</p><p>Content of the file <strong>nginx-sample.yaml</strong></p><pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+name: nginx
+namespace: default
+spec:
+selector:
+    matchLabels:
+    app: nginx
+template:
+    metadata:
+    labels:
+        app: nginx
+    spec:
+    containers:
+    - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+name: nginx-svc
+namespace: default
+spec:
+ports:
+- port: 80
+    protocol: TCP
+    targetPort: 80
+selector:
+    app: nginx
+type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+name: nginx
+namespace: default
+annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+rules:
+- host: server.example.com
+    http:
+    paths:
+    - path: /
+        pathType: Prefix
+        backend:
+        service:
+            name: nginx-svc
+            port:
+            number: 80
+</code></pre><p>Now deploy the app using kubectl:</p><pre><code>kubectl apply -f nginx-sample.yaml
+</code></pre><p>If everything went fine you should see following entries in your external DNS pod as it refresh it&rsquo;s state every 10 seconds:</p><pre><code>level=debug msg=&quot;Retrieving Azure Private DNS zones for Resource Group 'dns-rg'&quot;
+level=debug msg=&quot;Validating Zone: example.com&quot;
+level=debug msg=&quot;Found 1 Azure Private DNS zone(s).&quot;
+level=debug msg=&quot;Retrieving Azure Private DNS Records for resource group 'dns-rg'&quot;
+level=debug msg=&quot;Retrieving Azure Private DNS Records for zone 'example.com'.&quot;
+level=debug msg=&quot;Failed to extract targets for 'example.com' with type 'SOA'.&quot;
+level=debug msg=&quot;Found TXT record for 'a-server.example.com' with target '\&quot;heritage=external-dns,external-dns/owner=external-dns,external-dns/resource=ingress/default/nginx\&quot;'.&quot;
+level=debug msg=&quot;Found A record for 'server.example.com' with target '10.0.1.251'.&quot;
+level=debug msg=&quot;Found TXT record for 'server.example.com' with target '\&quot;heritage=external-dns,external-dns/owner=external-dns,external-dns/resource=ingress/default/nginx\&quot;'.&quot;
+level=debug msg=&quot;Returning 3 Azure Private DNS Records for resource group 'dns-rg'&quot;
+</code></pre><p>Now if you will go to <strong>example.com</strong> zone in Azure portal you should see following entries which points our <strong>server.example.com</strong> record to NGINX ingress controller static IP 10.0.1.251.</p><p><img src=../../img/1/dns_1.JPG alt></p><h3 id=deploy-and-configure-azure-dns-private-resolver>Deploy and configure Azure DNS private resolver</h3><p>In Azure portal search for <strong>DNS private resolvers</strong> then go to <strong>Create DNS private resolver</strong> and specify details including the VNet that we created in previous steps.</p><p><img src=../../img/1/resolver_1.JPG alt></p><p>Next we will specify inbound endpoint by specifying our <strong>snet-inbound-subnet</strong></p><p><img src=../../img/1/resolver_2.JPG alt></p><p>Same for outbound endpoint by specifying our <strong>snet-outbound-subnet</strong></p><p><img src=../../img/1/resolver_3.JPG alt></p><p>Once done you can deploy the Private resolver since we will add a ruleset in next step. After deployment both subnets should be delegated to dns resolver.</p><p><img src=../../img/1/vnet_1.JPG alt></p><p>Now search for <strong>DNS forwarding rulesets</strong> and choose <strong>Create DNS forwarding ruleset</strong></p><p><img src=../../img/1/ruleset_1.JPG alt></p><p>Next, we will add a rule that will be used for conditional forwarding from the on-premise DNS server.
+The destination IP is the IP of our inbound endpoint and the domain is the one we chose for our AKS workloads.</p><p><img src=../../img/1/ruleset_2.JPG alt></p><p>Now we need to link our VNet to the ruleset.</p><p><img src=../../img/1/ruleset_3.JPG alt></p><h3 id=configure-conditional-forwarding-from-dns-server>Configure conditional forwarding from DNS server</h3><p>(This article do not cover how to deploy and configure Active Directory domain controller but it is easy click-through experience)</p><p>We will now add conditional forwarding rule in DNS server to our inbound endpoint IP.</p><p><img src=../../img/1/dc_1.JPG alt></p><p>Also as a quick test let&rsquo;s run nslookup and check if there is an NGINX ingress controller IP when we try to resolve <strong>server.example.com</strong>.</p><p><img src=../../img/1/dc_2.JPG alt></p><h3 id=test-to-see-if-we-can-reach-aks-service>Test to see if we can reach AKS service</h3><p>Now that everything is in place type in web browser on domain controller server following address <strong><a href=http://server.example.com>http://server.example.com</a></strong> you should see nginx welcome page.</p><p><img src=../../img/1/dc_3.JPG alt></p><h3 id=finall-thoughts>Finall thoughts</h3><p>We haven&rsquo;t covered name resolution from AKS to the on-premise server but it can be achieved by creating another rule in DNS ruleset and pointing to the IP of our on-premise DNS servers. To achieve this without Azure private resolver you can also modify AKS DNS (CoreDNS) configuration with your own custom config.</p><p>We did a test from the domain controller but if you want to deploy client test machine in Azure make sure that VNet where it is deployed has the domain controller IP in the <strong>DNS Servers</strong> tab.</p><p>Overall I like the idea of not having to worry about managing DNS servers either in AKS or deployed as a separate VM and just using PAAS solutions like Azure private DNS with DNS private resolver it definitely looks good in this simple POC.</p><h3 id=aditional-resources>Aditional resources</h3><p><a href=https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview>What is Azure DNS Private Resolver?</a></p><p><a href=https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-get-started-portal>Quickstart: Create an Azure DNS Private Resolver using the Azure portal</a></p><p><a href=https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/azure-private-dns.md>Set up ExternalDNS for Azure Private DNS</a></p></div><div class=post-footer></div></article></main></body></html>
