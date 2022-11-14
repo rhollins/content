@@ -2,7 +2,7 @@
 title: "Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS"
 date: 2022-11-06T18:31:41Z
 draft: false
-tags: [azure, aks, dns, nginx, externaldns]
+tags: [azure, aks, dns, nginx, externaldns, activedirectory]
 # 1
 ---
 
