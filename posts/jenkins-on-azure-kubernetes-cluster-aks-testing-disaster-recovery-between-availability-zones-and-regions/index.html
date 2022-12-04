@@ -1,0 +1,241 @@
+<!doctype html><html lang=en-us><head><title>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure // Rafal Hollins</title><link rel="shortcut icon" href=/favicon.ico><meta charset=utf-8><meta name=generator content="Hugo 0.107.0"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Rafal Hollins"><meta name=description content><link rel=stylesheet href=/content/css/main.min.144f8f7b5768d14d9daaea0f50004cc774e28fb08b29178450f3e9b3c1975e38.css><meta name=twitter:card content="summary"><meta name=twitter:title content="Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure"><meta name=twitter:description content="Jenkins is still a very popular CI/CD tool used by a lot of companies if you want to run it in Azure there are some usual options to choose from including stand alone VM&rsquo;s or Azure Virtual Machine Scale Sets, but in this article, we will use AKS for both Jenkins controller and agents.
+When deploying any solution there are a lot of things to consider like for example security, maintenance overhead, and cost but also reliability, and this last one is what we will focus on, in particular, we will try to answer the question: How to recover Jenkins controller from Azure zone and region failure."><meta property="og:title" content="Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure"><meta property="og:description" content="Jenkins is still a very popular CI/CD tool used by a lot of companies if you want to run it in Azure there are some usual options to choose from including stand alone VM&rsquo;s or Azure Virtual Machine Scale Sets, but in this article, we will use AKS for both Jenkins controller and agents.
+When deploying any solution there are a lot of things to consider like for example security, maintenance overhead, and cost but also reliability, and this last one is what we will focus on, in particular, we will try to answer the question: How to recover Jenkins controller from Azure zone and region failure."><meta property="og:type" content="article"><meta property="og:url" content="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-testing-disaster-recovery-between-availability-zones-and-regions/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-12-03T18:31:41+00:00"><meta property="article:modified_time" content="2022-12-03T18:31:41+00:00"></head><body><header class=app-header><a href=https://rhollins.github.io/content/><img class=app-header-avatar src=/content/avatar.jpg alt="Rafal Hollins"></a>
+<span class=app-header-title>Rafal Hollins</span><p>#DevOps #Azure #Kubernetes #DataEngineering #Golang #CloudArchitecture</p><div class=app-header-social><a href=https://github.com/rhollins target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github"><title>GitHub</title><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg></a><a href=https://twitter.com/RafalHollins target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter"><title>Twitter</title><path d="M23 3a10.9 10.9.0 01-3.14 1.53 4.48 4.48.0 00-7.86 3v1A10.66 10.66.0 013 4s-4 9 5 13a11.64 11.64.0 01-7 2c9 5 20 0 20-11.5a4.5 4.5.0 00-.08-.83A7.72 7.72.0 0023 3z"/></svg></a><a href=https://www.linkedin.com/in/rafalhollins/ target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin"><title>linkedin</title><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></div></header><main class=app-container><article class=post><header class=post-header><h1 class=post-title>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure</h1><div class=post-meta><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar"><title>calendar</title><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Dec 3, 2022</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock"><title>clock</title><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>12 min read</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag"><title>tag</title><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a class=tag href=https://rhollins.github.io/content/tags/azure/>azure</a>
+<a class=tag href=https://rhollins.github.io/content/tags/aks/>aks</a>
+<a class=tag href=https://rhollins.github.io/content/tags/jenkins/>jenkins</a>
+<a class=tag href=https://rhollins.github.io/content/tags/dr/>dr</a></div></div></header><div class=post-content><p><img src=../../img/2/header.jpg alt></p><p>Jenkins is still a very popular CI/CD tool used by a lot of companies if you want to run it in Azure there are some usual options to choose from including stand alone VM&rsquo;s or Azure Virtual Machine Scale Sets, but in this article, we will use AKS for both Jenkins controller and agents.</p><p>When deploying any solution there are a lot of things to consider like for example security, maintenance overhead, and cost but also reliability, and this last one is what we will focus on, in particular, we will try to answer the question: How to recover Jenkins controller from Azure zone and region failure.</p><p>In the beginning, we should put some boundaries around our expectations since this is a simple POC we still want almost instant RPO and RTO for zone failures but we are good with an hour or so for RPO and RTO in case of regional failure let&rsquo;s just say it&rsquo;s &ldquo;lunchtime&rdquo; RTO (Jenkins has to be up before Dev team comes back from lunch).</p><p>What are some of the storage offerings that we have in Azure that can help us with those requirements:</p><ul><li><p><a href=https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction>Azure NetApp Files</a> - This is enterprise-grade storage solution which can be also used with tools like <a href=https://azuremarketplace.microsoft.com/en-GB/marketplace/apps/netapp.netapp-astra-acs>Astra Control Service</a>. But in our case, it might be overkill, especially since the minimum size of the capacity pool is 4TB which is way too much for what we need. Perhaps this solution should be considered when planning a wider strategy of hosting stateful AKS workloads.</p></li><li><p><a href=https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction>Azure Files</a> - It is PAAS offering for hosting SMB/NFS storage. The <strong>Premium</strong> tier might be fast enough to host Jenkins controller home directory however there are a few problems that I found with regional failover. You cannot replicate to other regions than paired one and sometimes this is not an option. Testing failover is potentially destructive if you will not keep an eye on synchronization. When failover is done the storage account is changed into LRS (locally redundant storage) and cannot be converted back into GZRS (geo-zone-redundant storage).</p></li><li><p><a href=https://learn.microsoft.com/en-gb/azure/virtual-machines/disks-redundancy#zone-redundant-storage-for-managed-disks>Managed Disks with Zone-redundant storage (ZRS)</a> - Managed disks will be synchronously replicated across three availability zones inside the region which simplifies our zone failover as we can use AKS nodes in the different region connected to the same disk after one of the zones will be gone. Unfortunately, ZRS disks are currently only available in a handful of Azure regions but hopefully, it will change soon.</p></li></ul><p>Here are some of the components we will be using and configuring:</p><ul><li>AKS deployed in a subnet with Azure Container Networking Interface (CNI) and NGINX Ingress Controller.</li><li>Azure Backup Vault (sometimes confused with Recovery Service Vault)</li><li>Azure Zone Redundant Managed Disks and Snapshots</li></ul><h2 id=testing-availbility-zone-failover>Testing Availbility Zone Failover</h2><p>To test the Availability Zone failover we will deploy AKS cluster in West US 2 region with two node pools each in a different zone, after that we will deploy Jenkins in AKS which utilizes zones through affinity rules, and at the end perform a test failover by deleting the active node and checking how Jenkins recovers.</p><h3 id=create-vnet-and-aks-with-nginx-ingress-controller>Create VNet and AKS with NGINX Ingress Controller</h3><p>Create Virtual Networks and subnet for AKS and client test machine (which you might don&rsquo;t need if you whish to use forwarding instead)</p><pre><code>az group create \
+--location westus2 \
+--name poc-rg
+
+az network vnet create \
+--name poc-vnet \
+--resource-group poc-rg \
+--location westus2 \
+--address-prefix 10.0.0.0/16 \
+--subnet-name aks-subnet \
+--subnet-prefixes 10.0.1.0/24
+
+az network vnet subnet create \
+--address-prefix 10.0.2.0/24 \
+--name client-subnet \
+--resource-group poc-rg \
+--vnet-name poc-vnet
+</code></pre><p>Create AKS Cluster.</p><blockquote><p><strong>Note:</strong> It is important to note that in real life scenario you should also create zone redundant systempool</p></blockquote><pre><code>az aks create \
+    -g poc-rg\
+    -n aks-wu \
+    --location westus2 \
+    --enable-managed-identity \
+    --load-balancer-sku standard \
+    --node-count 1 \
+    --nodepool-name systempool \
+    --generate-ssh-keys \
+    --network-plugin azure \
+    --vnet-subnet-id /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.Network/virtualNetworks/poc-vnet/subnets/aks-subnet \
+    --docker-bridge-address 172.17.0.1/16 \
+    --dns-service-ip 10.2.0.10 \
+    --service-cidr 10.2.0.0/24 \
+    --node-vm-size Standard_B2s \
+    --node-osdisk-size 30
+
+az aks get-credentials --name aks-wu --resource-group poc-rg --overwrite-existing --admin
+</code></pre><p>Provide permissions to AKS managed identity account so that it can attach managed disks located inside our resource group and allocate IP&rsquo;s in cluster subnet.</p><pre><code>export AZ_PRINCIPAL_ID=$(
+az aks show -g poc-rg -n aks-wu \
+    --query &quot;identity.principalId&quot; \
+    --output tsv
+)
+
+az role assignment create --role &quot;Contributor&quot; --assignee $AZ_PRINCIPAL_ID --scope /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg
+az role assignment create --role &quot;Network Contributor&quot; --assignee $AZ_PRINCIPAL_ID --scope /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.Network/virtualNetworks/poc-vnet
+</code></pre><p>To deploy NGINX Ingress Controller first create helm values file <strong>internal-ingress.yaml</strong> with the following content, this will create another Azure Load Balancer and allocate static private IP to Ingress Controller service.</p><pre><code>controller:
+    service:
+        loadBalancerIP: 10.0.1.251
+        annotations:
+        service.beta.kubernetes.io/azure-load-balancer-internal: &quot;true&quot;
+</code></pre><p>Then deploy NGINX Ingress Controller chart (we are using the community version):</p><pre><code>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+    --namespace default \
+    --set controller.service.annotations.&quot;service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path&quot;=/healthz \
+    -f internal-ingress.yaml
+</code></pre><p>Now we will add to AKS two new node pools each in different zones to host our Jenkins controller.</p><pre><code>az aks nodepool add \
+    --name poolzone1 \
+    --resource-group poc-rg \
+    --cluster-name aks-wu \
+    --node-count 1 \
+    --vnet-subnet-id /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.Network/virtualNetworks/poc-vnet/subnets/aks-subnet \
+    --node-vm-size Standard_B2s \
+    --node-osdisk-size 30 \
+    --zones 1
+
+az aks nodepool add \
+    --name poolzone2 \
+    --resource-group poc-rg \
+    --cluster-name aks-wu \
+    --node-count 1 \
+    --vnet-subnet-id /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.Network/virtualNetworks/poc-vnet/subnets/aks-subnet \
+    --node-vm-size Standard_B2s \
+    --node-osdisk-size 30 \
+    --zones 2
+</code></pre><h3 id=create-managed-disk-and-configure-jenkins-storage>Create Managed Disk and Configure Jenkins Storage</h3><p>Once we have nodes ready which you can verify by running the command <code>kubectl get no</code> it is time to create ZRS managed disk which will be used to host home directory of Jenkins controller.</p><pre><code>az disk create \
+--name jenkins-md \
+--resource-group poc-rg \
+--sku StandardSSD_ZRS \
+--location westus2 \
+--size-gb 4
+</code></pre><p>We also need to create <strong>PV</strong>, <strong>SC</strong>, and <strong>PVC</strong> which will be used to attach this managed disk to the Jenkins controller pod. Here we also ensure that <strong>reclaimPolicy</strong> is set to <strong>Retain</strong> since we are managing disk externally to AKS.</p><p>jenkins-sc.yaml</p><pre><code>allowVolumeExpansion: true
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: jenkins-sc
+parameters:
+  skuname: StandardSSD_ZRS
+provisioner: disk.csi.azure.com
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+</code></pre><p>jenkins-pv.yaml</p><pre><code>apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jenkins-pv
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 4Gi
+  csi:
+    driver: disk.csi.azure.com
+    volumeHandle: /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.Compute/disks/jenkins-md
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    name: jenkins-pvc
+    namespace: default
+  storageClassName: jenkins-sc
+  volumeMode: Filesystem
+</code></pre><p>jenkins-pvc.yaml</p><pre><code>apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    meta.helm.sh/release-name: jenkins
+    meta.helm.sh/release-namespace: default
+    volume.beta.kubernetes.io/storage-provisioner: disk.csi.azure.com
+    volume.kubernetes.io/storage-provisioner: disk.csi.azure.com
+  labels:
+    app.kubernetes.io/component: jenkins-controller
+    app.kubernetes.io/instance: jenkins
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: jenkins
+  name: jenkins-pvc
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+  storageClassName: jenkins-sc
+</code></pre><p>Once files are ready just run kubectl to apply all:</p><pre><code>kubectl apply -f jenkins-sc.yaml
+kubectl apply -f jenkins-pv.yaml
+kubectl apply -f jenkins-pvc.yaml
+</code></pre><h3 id=deploy-and-configure-jenkins>Deploy and configure Jenkins</h3><p>Before we deploy Jenkins we need to prepare Helm values file. Create file <strong>jenkins.values.yaml</strong> with following content.</p><p>We are setting a few things here:</p><ul><li>Create an ingress resource</li><li>Specify affinity rules to ensure that pod can only be created in either of two specific zones in Azure</li><li>Indicate we want to use our pre-created PVC <strong>jenkins-pvc</strong></li></ul><p>Content of <strong>jenkins.values.yaml</strong></p><pre><code>controller:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hostName: jenkins.example.com
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - westus2-1
+            - westus2-2
+persistence:
+  existingClaim: jenkins-pvc
+</code></pre><p>Then we deploy jenkins.</p><pre><code>helm repo add jenkins https://charts.jenkins.io
+helm repo update
+helm install jenkins jenkins/jenkins \
+  --namespace default \
+  -f jenkins.values.yaml
+</code></pre><p>To verify if managed disk has been attached check latest events on jenkins pod with command <strong>kubectl describe pod jenkins-0</strong>.</p><p>Also as you can see our pod has been deployed to node pool in zone 2.</p><pre><code>Type     Reason                  Age   From                     Message
+----     ------                  ----  ----                     -------
+Normal   Scheduled               67s   default-scheduler        Successfully assigned default/jenkins-0 to aks-poolzone2-27948138-vmss000000
+Normal   SuccessfulAttachVolume  58s   attachdetach-controller  AttachVolume.Attach succeeded for volume &quot;jenkins-pv&quot;
+</code></pre><p>Now from the client machine which has private network access to Jenkins subnet, we will try to open Jenkins website, since we are using ingress resource make sure to link IP of NGINX Ingress Controller in our case 10.0.1.251 with the custom hostname which we specified in Helm values files.</p><p>You can login with username <strong>admin</strong> and password which as been generated and it&rsquo;s located in secret called <strong>jenkins</strong> which is in the same namespace as jenkins deployment.</p><p>Once logged in let&rsquo;s create a simple pipeline which we will use during test failover.
+Choose <strong>New Item</strong> then <strong>pipeline</strong> and in the script, box copy and paste this content:</p><pre><code>podTemplate (inheritFrom: 'default') {
+    node(POD_LABEL) {
+        stage('Run shell') {
+            sh 'sleep 1h'
+        }
+    }
+}
+</code></pre><p>Now let&rsquo;s start the pipeline, you should see the following output in the pipeline console output.</p><pre><code>Running on test-pipline-sleep-26-hd5g0-vkbsf-zn1gb in /home/jenkins/agent/workspace/test-pipline-sleep
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Run shell)
+[Pipeline] sh
++ sleep 1h
+</code></pre><p>If you look at running pods you should see the one created for our Jenkins job <strong>test-pipline-sleep</strong>.</p><pre><code>NAME                                        READY   STATUS    RESTARTS   AGE   IP          NODE                                 NOMINATED NODE   READINESS GATES
+test-pipline-sleep-26-hd5g0-vkbsf-zn1gb     1/1     Running   0          71s   10.0.1.34   aks-poolzone1-11650587-vmss000000    &lt;none&gt;           &lt;none&gt;
+</code></pre><h3 id=test-availability-zone-failover>Test Availability Zone failover</h3><p>Now that the pipeline is running let us simulate the loss of Availability Zone 2 which is where Jenkins pod is running so we will just delete AKS node pool in this zone.</p><p><img src=../../img/2/del_nodepool.JPG alt></p><p>You will notice error in Jenkins website as the controller pod is gone:</p><p><img src=../../img/2/jenkins_error.JPG alt></p><p>If you would run <code>kubectl get pods -w</code> you would notice that around 2 minutes have passed between deleting the original pod and running a new one.</p><pre><code>NAME                                        READY   STATUS    RESTARTS   AGE
+jenkins-0                                   2/2     Running   0          46s
+jenkins-0                                   2/2     Terminating   0          65s
+jenkins-0                                   0/2     Terminating   0          66s
+jenkins-0                                   0/2     Terminating   0          66s
+jenkins-0                                   0/2     Terminating   0          66s
+jenkins-0                                   0/2     Pending       0          0s
+jenkins-0                                   0/2     Pending       0          0s
+jenkins-0                                   0/2     Init:0/1      0          0s
+jenkins-0                                   0/2     Init:0/1      0          67s
+jenkins-0                                   0/2     PodInitializing   0          81s
+jenkins-0                                   1/2     Running           0          89s
+jenkins-0                                   1/2     Running           0          105s
+jenkins-0                                   2/2     Running           0          106s
+</code></pre><p>When you describe the Jenkins pod you would see that we also hit the <em>Multi-Attach error</em> which might be caused by some kind of race condition where PV is still attached to the previous node while the new POD is trying to claim it and since we set <strong>accessModes</strong> to <strong>ReadWriteOnce</strong> only one can claim it at the time.</p><p>Eventually pod will recover on it&rsquo;s own and successfully attach the volume.</p><pre><code>Events:
+  Type     Reason                  Age   From                     Message
+  ----     ------                  ----  ----                     -------
+  Normal   Scheduled               117s  default-scheduler        Successfully assigned default/jenkins-0 to aks-poolzone1-29081885-vmss000000
+  Warning  FailedAttachVolume      117s  attachdetach-controller  Multi-Attach error for volume &quot;jenkins-pv&quot; Volume is already exclusively attached to one node and can't be attached to another
+  Normal   SuccessfulAttachVolume  77s   attachdetach-controller  AttachVolume.Attach succeeded for volume &quot;jenkins-pv&quot;
+</code></pre><p>Now that we have Jenkins running again let&rsquo;s check the interface you will notice that the pod running the job is still there as in our case luckily it was running on the node pool that wasn’t affected.</p><p><img src=../../img/2/resume_build.JPG alt></p><p>Overall failover was quick and we retained all data up to the point when the zone was deleted.</p><h2 id=testing-regional-failover>Testing Regional Failover</h2><p>For the region outage, we will rely on the managed disk backup which we will synchronize to another region in our case our primary region will be West US, and failover region will be North Europe.</p><p>To perform a backup of managed disk which pod is using we can use for example <a href=https://learn.microsoft.com/en-us/azure/aks/azure-disk-csi>Azure Disks Container Storage Interface (CSI)</a> to do it from within K8s itself but in this post to make our life easier we will use Azure Backup Vault since it will also sort out the whole orchestration part for us including scheduling and retention.
+The limitation here is that the shortest frequency of scheduled backup is one hour and you need to add to it also the time that it takes to copy the backup to another region, since it is incremental in general it shouldn&rsquo;t take to long.</p><p>Configuration of the Backup Vault and creating first backup of our disk is actually quite easy and you can do it by following this MS guide <a href=https://learn.microsoft.com/en-us/azure/backup/backup-managed-disks>Back up Azure Managed Disks</a>.</p><p>Once done it will create incremental snapshots in the same region as backup vault which means now we need to copy snapshots to our target region in or case North Europe.</p><p>We can use Azure CLI for that:</p><pre><code>snapshot_id=$(az snapshot show -n &lt;source_snapshot_name&gt; -g poc-rg --query [id] -o tsv)
+az snapshot create -g poc-rg -n jenkins-disk-snapshot -l northeurope --source $snapshot_id --incremental --copy-start
+</code></pre><blockquote><p><strong>Note:</strong> You can use azure cli command <code>az snapshot wait</code> with <code>--custom</code> flag to check if copy process has been done in 100%.</p></blockquote><p>Once fininshed you will have zone redundant snapshot copy in our case called <strong>jenkins-disk-snapshot</strong> in North Europe region.</p><p><img src=../../img/2/disk_snapshots.JPG alt></p><p>Now to create ZRS managed disk in North Europe from this snapshot just choose <strong>Create Disk</strong> and ensure you set <strong>ZRS size</strong> so that we can use zone redundant disk in our failover DR environment as well.</p><p><img src=../../img/2/disk_snapshots2.JPG alt></p><p>To test if Jenkins will work with the restored managed disk in the new region just deploy AKS the same way as we did at the begging of this post but in North Europe also remember about following changes:</p><p><strong>jenkins.values.yaml</strong> file will need to have affinity rule updated to use labels with availability zones in North Europe</p><pre><code>controller:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hostName: jenkins.example.com
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - northeurope-1
+            - northeurope-2
+persistence:
+  existingClaim: jenkins-pvc
+</code></pre><p><strong>jenkins-pv.yaml</strong> will need to point to the new restored managed disk name so in our case <strong>jenkins-md-ne</strong></p><pre><code>apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jenkins-pv
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 4Gi
+  csi:
+    driver: disk.csi.azure.com
+    volumeHandle: /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.Compute/disks/jenkins-md-ne
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    name: jenkins-pvc
+    namespace: default
+  storageClassName: jenkins-sc
+  volumeMode: Filesystem
+</code></pre><p>And to perform final confirmation if our environment in North Europe works fine here is a screenshot from the client machine in DR region pointing to Jenkins with the restored disk. As you can see pipeline that we created is there.</p><p><img src=../../img/2/jenkins_dr.JPG alt></p><h2 id=final-thoughts>Final Thoughts</h2><p>We haven&rsquo;t covered failover of the storage of Jenkins agents like workspaces or cached artifacts which you might want to preserve so this is worth keeping in mind.</p><p>It might be worth keeping an eye on the new Azure offering which could be helpful here <a href=https://azure.microsoft.com/en-gb/updates/akspvbackupprivatepreview/>AKS cluster persistent volume backup</a> but at the moment at least it is still in private preview.</p><p>We focused on Azure native solutions in this post but since K8s have such a rich ecosystem of tools it is worth exploring at least some of them, here are few examples: <a href=https://trilio.io/>trilio</a>, <a href=https://www.kasten.io/>kasten</a>, <a href=https://portworx.com/>portworx</a></p></div><div class=post-footer></div></article></main></body></html>
