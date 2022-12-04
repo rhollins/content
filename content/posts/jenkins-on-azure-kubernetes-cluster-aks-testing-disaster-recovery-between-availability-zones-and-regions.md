@@ -1,7 +1,7 @@
 ---
-title: "Jenkins on Azure Kubernetes Cluster (AKS) testing disaster recovery between availability zones and regions"
-date: 2022-11-19T18:31:41Z
-draft: true
+title: "Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure"
+date: 2022-12-03T18:31:41Z
+draft: false
 tags: [azure, aks, jenkins, dr]
 # 2
 ---
@@ -10,7 +10,7 @@ tags: [azure, aks, jenkins, dr]
 
 Jenkins is still a very popular CI/CD tool used by a lot of companies if you want to run it in Azure there are some usual options to choose from including stand alone VM's or Azure Virtual Machine Scale Sets, but in this article, we will use AKS for both Jenkins controller and agents.
 
-When deploying any solution there are a lot of things to consider like security, maintenance overhead, and cost but also reliability, and this last one is what we will focus on, in particular, we will try to answer the question: How to recover Jenkins from Azure zone and region failure.
+When deploying any solution there are a lot of things to consider like for example security, maintenance overhead, and cost but also reliability, and this last one is what we will focus on, in particular, we will try to answer the question: How to recover Jenkins controller from Azure zone and region failure.
 
 In the beginning, we should put some boundaries around our expectations since this is a simple POC we still want almost instant RPO and RTO for zone failures but we are good with an hour or so for RPO and RTO in case of regional failure let's just say it's "lunchtime" RTO (Jenkins has to be up before Dev team comes back from lunch).
 
@@ -18,7 +18,7 @@ What are some of the storage offerings that we have in Azure that can help us wi
 
 * [Azure NetApp Files](https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction) - This is enterprise-grade storage solution which can be also used with tools like [Astra Control Service](https://azuremarketplace.microsoft.com/en-GB/marketplace/apps/netapp.netapp-astra-acs). But in our case, it might be overkill, especially since the minimum size of the capacity pool is 4TB which is way too much for what we need. Perhaps this solution should be considered when planning a wider strategy of hosting stateful AKS workloads.
 
-* [Azure Files](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) - It is PAAS offering for hosting SMB/NFS storage. The "transactional" tier might be fast enough to host Jenkins controller home directory however there are a few problems that I found with regional failover. You cannot replicate to other regions than paired one and sometimes this is not an option. Testing failover is potentially destructive if you will not keep an eye on synchronization. When failover is done the storage account is changed into LRS (locally redundant storage) and cannot be converted back into GZRS (geo-zone-redundant storage).
+* [Azure Files](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction) - It is PAAS offering for hosting SMB/NFS storage. The **Premium** tier might be fast enough to host Jenkins controller home directory however there are a few problems that I found with regional failover. You cannot replicate to other regions than paired one and sometimes this is not an option. Testing failover is potentially destructive if you will not keep an eye on synchronization. When failover is done the storage account is changed into LRS (locally redundant storage) and cannot be converted back into GZRS (geo-zone-redundant storage).
 
 * [Managed Disks with Zone-redundant storage (ZRS)](https://learn.microsoft.com/en-gb/azure/virtual-machines/disks-redundancy#zone-redundant-storage-for-managed-disks) - Managed disks will be synchronously replicated across three availability zones inside the region which simplifies our zone failover as we can use AKS nodes in the different region connected to the same disk after one of the zones will be gone. Unfortunately, ZRS disks are currently only available in a handful of Azure regions but hopefully, it will change soon.
 
@@ -30,7 +30,7 @@ Here are some of the components we will be using and configuring:
 
 ## Testing Availbility Zone Failover
 
-To test the Availability Zone failover we will deploy AKS cluster in West US 2 region with two node pools each in a different zone, after that we will deploy Jenkins which utilizes zones through affinity rules, and at the end perform a test failover by deleting the active node and checking how Jenkins recovers.
+To test the Availability Zone failover we will deploy AKS cluster in West US 2 region with two node pools each in a different zone, after that we will deploy Jenkins in AKS which utilizes zones through affinity rules, and at the end perform a test failover by deleting the active node and checking how Jenkins recovers.
 
 ### Create VNet and AKS with NGINX Ingress Controller
 
