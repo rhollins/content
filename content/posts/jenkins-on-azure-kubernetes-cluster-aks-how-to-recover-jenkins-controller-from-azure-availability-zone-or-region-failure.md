@@ -279,7 +279,7 @@ Now let's start the pipeline, you should see the following output in the pipelin
 If you look at running pods you should see the one created for our Jenkins job **test-pipline-sleep**.
 
     NAME                                        READY   STATUS    RESTARTS   AGE   IP          NODE                                 NOMINATED NODE   READINESS GATES
-    test-pipline-sleep-26-hd5g0-vkbsf-zn1gb     1/1     Running   0          71s   10.0.1.34   aks-poolzone2-11650587-vmss000000    <none>           <none>
+    test-pipline-sleep-26-hd5g0-vkbsf-zn1gb     1/1     Running   0          71s   10.0.1.34   aks-poolzone1-11650587-vmss000000    <none>           <none>
 
 ### Test Availability Zone failover
 
