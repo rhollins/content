@@ -178,7 +178,7 @@ Choose <strong>New Item</strong> then <strong>pipeline</strong> and in the scrip
 [Pipeline] sh
 + sleep 1h
 </code></pre><p>If you look at running pods you should see the one created for our Jenkins job <strong>test-pipline-sleep</strong>.</p><pre><code>NAME                                        READY   STATUS    RESTARTS   AGE   IP          NODE                                 NOMINATED NODE   READINESS GATES
-test-pipline-sleep-26-hd5g0-vkbsf-zn1gb     1/1     Running   0          71s   10.0.1.34   aks-poolzone2-11650587-vmss000000    &lt;none&gt;           &lt;none&gt;
+test-pipline-sleep-26-hd5g0-vkbsf-zn1gb     1/1     Running   0          71s   10.0.1.34   aks-poolzone1-11650587-vmss000000    &lt;none&gt;           &lt;none&gt;
 </code></pre><h3 id=test-availability-zone-failover>Test Availability Zone failover</h3><p>Now that the pipeline is running let us simulate the loss of Availability Zone 2 which is where Jenkins pod is running so we will just delete AKS node pool in this zone.</p><p><img src=../../img/2/del_nodepool.JPG alt></p><p>You will notice error in Jenkins website as the controller pod is gone:</p><p><img src=../../img/2/jenkins_error.JPG alt></p><p>If you would run <code>kubectl get pods -w</code> you would notice that around 2 minutes have passed between deleting the original pod and running a new one.</p><pre><code>NAME                                        READY   STATUS    RESTARTS   AGE
 jenkins-0                                   2/2     Running   0          46s
 jenkins-0                                   2/2     Terminating   0          65s
