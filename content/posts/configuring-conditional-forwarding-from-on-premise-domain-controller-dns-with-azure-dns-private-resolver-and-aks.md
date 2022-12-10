@@ -8,6 +8,20 @@ tags: [azure, aks, dns, nginx, externaldns, activedirectory]
 
 ![](../../img/1/header.jpg)
 
+Table of contents
+
+* [Create VNet](#create-vnet)
+* [Deploy AKS](#deploy-aks)
+* [Create Azure private DNS zone](#create-azure-private-dns-zone)
+* [Deploy NGINX ingress controller](#deploy-nginx-ingress-controller)
+* [Deploy External DNS](#deploy-external-dns)
+* [Deploy Sample Appplication](#deploy-sample-appplication)
+* [Deploy and configure Azure DNS private resolver](#deploy-and-configure-azure-dns-private-resolver)
+* [Configure conditional forwarding from DNS server](#configure-conditional-forwarding-from-dns-server)
+* [Test if we can reach AKS service from on-premise](#test-if-we-can-reach-aks-service-from-on-premise)
+* [Finall thoughts](#finall-thoughts)
+* [Aditional resources](#aditional-resources)
+
 In this article, we will see how to resolve names of the K8s services running in [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/#overview) (Azure Kubernetes Service) from an on-premise desktop or server which is using DNS server running as part Active Directory Domain Controller.
 The assumption is that the company has a private connection with Azure using offerings like Expressroute.
 
@@ -169,7 +183,7 @@ Now we will use helm to deploy external DNS into default namespace:
 
 Once deployed check external dns pod logs and look for any errors the refresh is set to 10s so you should be able to see straight away if something is wrong.
 
-### Deploy sample appplication
+### Deploy Sample Appplication
 
 Now its time to deploy our sample application and check if the DNS record will be created.
 
@@ -296,7 +310,7 @@ Also as a quick test let's run nslookup and check if there is an NGINX ingress c
 
 ![](../../img/1/dc_2.JPG)
 
-### Test to see if we can reach AKS service
+### Test if we can reach AKS service from on-premise
 
 Now that everything is in place type in web browser on domain controller server following address **http://server.example.com** you should see nginx welcome page.
 

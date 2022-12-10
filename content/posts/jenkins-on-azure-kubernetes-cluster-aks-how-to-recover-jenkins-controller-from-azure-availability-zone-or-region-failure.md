@@ -8,6 +8,16 @@ tags: [azure, aks, jenkins, dr]
 
 ![](../../img/2/header.jpg)
 
+Table of contents
+
+* [Setting up our environment](#setting-up-our-environment)
+    * [Create VNet and AKS with NGINX Ingress Controller](#create-vnet-and-aks-with-nginx-ingress-controller)
+    * [Create Managed Disk and Configure Jenkins Storage](#create-managed-disk-and-configure-jenkins-storage)
+    * [Deploy and configure Jenkins](#deploy-and-configure-jenkins)
+* [Test Availability Zone failover](#test-availability-zone-failover)
+* [Test Regional Failover](#test-regional-failover)
+* [Final Thoughts](#final-thoughts)
+
 Jenkins is still a very popular CI/CD tool used by a lot of companies if you want to run it in Azure there are some usual options to choose from including stand alone VM's or Azure Virtual Machine Scale Sets, but in this article, we will use AKS for both Jenkins controller and agents.
 
 When deploying any solution there are a lot of things to consider like for example security, maintenance overhead, and cost but also reliability, and this last one is what we will focus on, in particular, we will try to answer the question: How to recover Jenkins controller from Azure zone and region failure.
@@ -28,7 +38,7 @@ Here are some of the components we will be using and configuring:
 * Azure Backup Vault (sometimes confused with Recovery Service Vault)
 * Azure Zone Redundant Managed Disks and Snapshots
 
-## Testing Availbility Zone Failover
+## Setting up our environment
 
 To test the Availability Zone failover we will deploy AKS cluster in West US 2 region with two node pools each in a different zone, after that we will deploy Jenkins in AKS which utilizes zones through affinity rules, and at the end perform a test failover by deleting the active node and checking how Jenkins recovers.
 
@@ -281,7 +291,7 @@ If you look at running pods you should see the one created for our Jenkins job *
     NAME                                        READY   STATUS    RESTARTS   AGE   IP          NODE                                 NOMINATED NODE   READINESS GATES
     test-pipline-sleep-26-hd5g0-vkbsf-zn1gb     1/1     Running   0          71s   10.0.1.34   aks-poolzone1-11650587-vmss000000    <none>           <none>
 
-### Test Availability Zone failover
+## Test Availability Zone failover
 
 Now that the pipeline is running let us simulate the loss of Availability Zone 2 which is where Jenkins pod is running so we will just delete AKS node pool in this zone.
 
@@ -325,7 +335,7 @@ Now that we have Jenkins running again let's check the interface you will notice
 
 Overall failover was quick and we retained all data up to the point when the zone was deleted.
 
-## Testing Regional Failover
+## Test Regional Failover
 
 For the region outage, we will rely on the managed disk backup which we will synchronize to another region in our case our primary region will be West US, and failover region will be North Europe.
 
