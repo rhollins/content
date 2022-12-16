@@ -257,7 +257,7 @@ Azure also offers an overview of NFS share performance so you can see utilizatio
 
 ![](../../img/3/nfs_mon.JPG)
 
-Tip: [Here](https://github.com/jenkinsci/kubernetes-plugin/blob/master/examples/dind.groovy) is another way which utilize Docker-in-Docker in Jenkins pipeline.
+> **Tip:** [Here](https://github.com/jenkinsci/kubernetes-plugin/blob/master/examples/dind.groovy) is another way which utilize Docker-in-Docker in Jenkins pipeline.
 
 ## Building container image using Jib
 
@@ -300,7 +300,7 @@ Before we run this pipeline create directory `/workspacesa192/aksshare/jib-test/
     }
 * We use `docker` image to authenticate with the ACR registry.
 * `hostPathVolume` is used to mount docker `config.json` file which contains auth token for ACR and makes it available to the Gradle container and Jib.
-* nfsVolume is used to mount `.gradle` cache directory in NFS share so that we can reuse it and save time on downloading dependencies on next run.
+* `nfsVolume` is used to mount `.gradle` cache directory in NFS share so that we can reuse it and save time on downloading dependencies on next run.
 
 > **Note:** It would be good idea to test running multiple pipeline instances at the same time and check if it cuas any problems when they start overwriting Gradle cache simultaneously.
 
