@@ -6,7 +6,7 @@ tags: [azure, aks, jenkins, kaniko, jib, buildkit, azurefiles, azureblob]
 # 3
 ---
 
-![](../../img/3/header.png)
+![](../../img/3/header.jpg)
 
 This is second article from the series **Jenkins on Azure Kubernetes Cluster (AKS)**:
 
@@ -25,7 +25,7 @@ Table of contents
     * [How to further improve the speed of Jenkins pipeline](#how-to-further-improve-the-speed-of-jenkins-pipeline)
 * [Building container image using Jib](#building-container-image-using-jib)
 * [Building container image using Kaniko](#building-container-image-using-kaniko)
-* [Finall thoughts](#finall-thoughts)
+* [Final thoughts](#final-thoughts)
 
 
 ## What we will cover in this article
@@ -399,6 +399,6 @@ Then we can create a Jenkins pipeline and run it.
 * We use `nfsVolume` to mount `/workspacesa192/aksshare/kaniko` directory which contains a cached base image.
 * We also mount configmap `docker-config` to instruct Kaniko how to authenticate with our ACR, in this case, it will be done by MI assigned to AKS.
 
-## Finall thoughts
+## Final thoughts
 
 * We haven’t mentioned [Buildx Kubernetes](https://docs.docker.com/build/building/drivers/kubernetes/) driver which allows you to create multiple container builders that can be run as for example K8s ad-hoc jobs to reduce cost. You can even use those from for example Dev team machines.
