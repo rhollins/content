@@ -302,7 +302,7 @@ Before we run this pipeline create directory `/workspacesa192/aksshare/jib-test/
 * `hostPathVolume` is used to mount docker `config.json` file which contains auth token for ACR and makes it available to the Gradle container and Jib.
 * `nfsVolume` is used to mount `.gradle` cache directory in NFS share so that we can reuse it and save time on downloading dependencies on next run.
 
-> **Note:** It would be good idea to test running multiple pipeline instances at the same time and check if it cuas any problems when they start overwriting Gradle cache simultaneously.
+> **Note:** It would be good idea to test running multiple pipeline instances at the same time and check if it cause any problems when they start overwriting Gradle cache simultaneously.
 
 Inside the NFS share we can see that Gradle successfully stored dependencies.
 
@@ -401,4 +401,4 @@ Then we can create a Jenkins pipeline and run it.
 
 ## Final thoughts
 
-* We haven’t mentioned [Buildx Kubernetes](https://docs.docker.com/build/building/drivers/kubernetes/) driver which allows you to create multiple container builders that can be run as for example K8s ad-hoc jobs to reduce cost. You can even use those from for example Dev team machines.
+* We haven’t mentioned [Buildx Kubernetes](https://docs.docker.com/build/building/drivers/kubernetes/) driver which allows you to create multiple container builders that can be run as for example K8s ad-hoc jobs to reduce cost. You can even use bilders from Dev team machines to use cloud resources.
