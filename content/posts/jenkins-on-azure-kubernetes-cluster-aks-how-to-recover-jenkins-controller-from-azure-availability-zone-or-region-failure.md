@@ -8,6 +8,12 @@ tags: [azure, aks, jenkins, dr]
 
 ![](../../img/2/header.jpg)
 
+This is first article from the series **Jenkins on Azure Kubernetes Cluster (AKS)**:
+
+1. Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure
+
+2. [Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching](https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/)
+
 Table of contents
 
 * [Setting up our environment](#setting-up-our-environment)
