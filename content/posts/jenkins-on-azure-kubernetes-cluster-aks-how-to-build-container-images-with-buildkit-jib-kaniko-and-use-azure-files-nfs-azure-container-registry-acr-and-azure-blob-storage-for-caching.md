@@ -1,6 +1,6 @@
 ---
 title: "Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching"
-date: 2023-01-07T18:31:41Z
+date: 2023-01-07T13:31:41Z
 draft: false
 tags: [azure, aks, jenkins, kaniko, jib, buildkit, azurefiles, azureblob]
 # 3
