@@ -1,0 +1,192 @@
+<!doctype html><html lang=en-us><head><title>Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines // Rafal Hollins</title><link rel="shortcut icon" href=/favicon.ico><meta charset=utf-8><meta name=generator content="Hugo 0.110.0"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Rafal Hollins"><meta name=description content><link rel=stylesheet href=/content/css/main.min.144f8f7b5768d14d9daaea0f50004cc774e28fb08b29178450f3e9b3c1975e38.css><meta name=twitter:card content="summary"><meta name=twitter:title content="Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines"><meta name=twitter:description content="This is third article from the series Jenkins on Azure Kubernetes Cluster (AKS):
+Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure
+Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching
+Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines"><meta property="og:title" content="Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines"><meta property="og:description" content="This is third article from the series Jenkins on Azure Kubernetes Cluster (AKS):
+Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure
+Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching
+Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines"><meta property="og:type" content="article"><meta property="og:url" content="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-02-04T13:31:41+00:00"><meta property="article:modified_time" content="2023-02-04T13:31:41+00:00"></head><body><header class=app-header><a href=https://rhollins.github.io/content/><img class=app-header-avatar src=/content/avatar.jpg alt="Rafal Hollins"></a>
+<span class=app-header-title>Rafal Hollins</span><p>#DevOps #Azure #Kubernetes #DataEngineering #Golang #CloudArchitecture</p><div class=app-header-social><a href=https://github.com/rhollins target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github"><title>GitHub</title><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg></a><a href=https://twitter.com/RafalHollins target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter"><title>Twitter</title><path d="M23 3a10.9 10.9.0 01-3.14 1.53 4.48 4.48.0 00-7.86 3v1A10.66 10.66.0 013 4s-4 9 5 13a11.64 11.64.0 01-7 2c9 5 20 0 20-11.5a4.5 4.5.0 00-.08-.83A7.72 7.72.0 0023 3z"/></svg></a><a href=https://www.linkedin.com/in/rafalhollins/ target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin"><title>linkedin</title><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></div></header><main class=app-container><article class=post><header class=post-header><h1 class=post-title>Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</h1><div class=post-meta><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar"><title>calendar</title><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Feb 4, 2023</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock"><title>clock</title><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>10 min read</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag"><title>tag</title><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a class=tag href=https://rhollins.github.io/content/tags/azure/>azure</a>
+<a class=tag href=https://rhollins.github.io/content/tags/aks/>aks</a>
+<a class=tag href=https://rhollins.github.io/content/tags/jenkins/>jenkins</a>
+<a class=tag href=https://rhollins.github.io/content/tags/autoscaler/>autoscaler</a>
+<a class=tag href=https://rhollins.github.io/content/tags/spotvm/>spotvm</a></div></div></header><div class=post-content><p><img src=../../img/4/header.jpg alt></p><p>This is third article from the series <strong>Jenkins on Azure Kubernetes Cluster (AKS)</strong>:</p><ol><li><p><a href=https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure</a></p></li><li><p><a href=https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/>Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching</a></p></li><li><p>Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</p></li></ol><p>Table of contents</p><ul><li><a href=#what-we-will-cover-in-this-article>What we will cover in this article</a></li><li><a href=#setting-up-our-environment>Setting up our environment</a><ul><li><a href=#adding-node-pools>Adding node pools</a></li><li><a href=#deploying-jenkins-and-configuring-agents-templates>Deploying Jenkins and configuring agents templates</a></li></ul></li><li><a href=#running-multi-pod-pipeline>Running multi-pod pipeline</a><ul><li><a href=#using-parameters-to-switch-between-spot-and-standard-node-pools>Using parameters to switch between spot and standard node pools</a></li></ul></li><li><a href=#final-thoughts>Final thoughts</a></li></ul><h2 id=what-we-will-cover-in-this-article>What we will cover in this article</h2><p>One of the main benefits of using the public cloud is at least in theory &ldquo;unlimited&rdquo; compute resources you can use for your workloads however even if you will adhere to the best practice of scaling up and down all your workloads cost can still be quite siginficant.</p><p>For some time now Microsoft is offering <a href=https://azure.microsoft.com/en-gb/products/virtual-machines/spot/#overview>Azure Spot VMs</a> which can offer around 90% compute cost reduction so for example where normally you would pay $1,500 a month for machine with 32 cores and 128GB of memory you can get it for just $180, this is huge cost saving but as always there are limitations, here are some of them:</p><ul><li>VM can be deallocated or deleted anytime with just 30 seconds of notification</li><li>There is no guarantee you will be able to create a new machine when you need it</li><li>You need to request Microsoft to increase your Spot vCPU family quotas (and it is not guaranteed)</li></ul><blockquote><p>You can find more information about Azure Spot VMs and their limitations here <a href=https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms>How to build workloads on spot virtual machines</a>, <a href=https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms>Use Azure Spot Virtual Machines</a></p></blockquote><p>There are only specific types of workloads that can benefit from spot VMs and CI/CD pipelines are one of those.</p><p>In this article, we will cover how to utilize Azure Spot VMs with Jenkins agents running on Azure Kubernetes Cluster (AKS) with Cluster Autoscaler enabled which can scale down Kubernetes node pools to 0 when we don&rsquo;t need them and scale up when we have new pipelines being triggered.</p><h2 id=setting-up-our-environment>Setting up our environment</h2><p>You can reference previous articles to deploy some of the components that we will use in this post:</p><ul><li>AKS and Jenkins deployment was covered in <a href=https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure.</a>.</li><li>Azure Container Registry and Service Principle account was covered in <a href=https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/>Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching</a></li></ul><p>We will also need to provide AKS Cluster Managed Identity (assigned to the nodes) with Contributor permission to AKS so that we can utilize kubectl and deploy the pod into the AKS.</p><pre><code>  export AZ_PRINCIPAL_ID=$(
+    az aks show -g poc-rg -n aks-wu \
+      --query &quot;identityProfile.kubeletidentity.objectId&quot; \
+      --output tsv
+  )
+
+  az role assignment create --role &quot;Contributor&quot; --assignee $AZ_PRINCIPAL_ID --scope --scope /subscriptions/&lt;subscription_id&gt;/resourceGroups/poc-rg/providers/Microsoft.ContainerService/managedClusters/aks-wu
+</code></pre><h3 id=adding-node-pools>Adding node pools</h3><p>Once we have AKS running we will add two separate node pools one based on spot VMs to run workloads that can be interrupted and the other based on standard VMs this one will be used for a pipeline that deploys our production release and cannot be interrupted.
+Also, we enable autoscale that will scale down our node pool to 0 if they are not in use this will ensure cost savings when we do not run any pipelines.</p><p>Create AKS node pool based on Spot VMs SKU</p><pre><code>az aks nodepool add \
+    --resource-group poc-rg \
+    --cluster-name aks-wu \
+    --name spotpool \
+    --priority Spot \
+    --eviction-policy Delete \
+    --spot-max-price -1 \
+    --enable-cluster-autoscaler \
+    --min-count 0 \
+    --max-count 4 \
+    --node-count 1 \
+    --node-vm-size Standard_D32_v5 \
+    --node-osdisk-size 60
+</code></pre><p>Create AKS node pool based on Standard VMs SKU</p><pre><code>az aks nodepool add \
+    --resource-group poc-rg \
+    --cluster-name aks-wu \
+    --name standardpool \
+    --enable-cluster-autoscaler \
+    --min-count 0 \
+    --max-count 4 \
+    --node-count 1 \
+    --node-vm-size Standard_D32_v5 \
+    --node-osdisk-size 60 \
+    --labels sku=standard
+</code></pre><p>Few things to mention here:</p><ul><li>For both node pools we will use large <code>Standard_D32_v5</code> machines with 32 CPU cores and 128 GB RAM those machines will be utilized by our Jenkins agents running as a Kubernetes pods that will each allocate a specific amount of resources from those VMs.</li><li><code>eviction-policy</code> flag indicates we want machines to be deleted and not deallocated you can read more about the difference <a href=https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/use-spot#eviction-policy>here</a></li><li><code>spot-max-price -1</code> means we don&rsquo;t want to delete VMs based on their price</li><li>In both cases enable Autoscale on each node pool by using <code>enable-cluster-autoscaler</code> flag</li><li>We also indicate by using <code>min-count 0</code> that we are fine with Cluster Autoscale to scale nodes to 0 if nothing is being scheduled on them</li><li>For the Standard SKU node pool we are adding the label <code>labels sku=standard</code> this will be used by Jenkins agent templates to schedule pods on the right node pool</li></ul><p>There is one more thing to do which is to increase the time that Cluster Autoscaler will wait before it will remove a node from the pool. By default, it might be 10-15 minutes which could be too short so in our case, we will increase it to 30 minutes.
+This setting will affect all node pools that are using autoscaler.</p><pre><code>az aks update \
+  --resource-group poc-rg  \
+  --name aks-wu \
+  --cluster-autoscaler-profile scale-down-unneeded-time=30m
+</code></pre><h3 id=deploying-jenkins-and-configuring-agents-templates>Deploying Jenkins and configuring agents templates</h3><p>When deploying Jenkins ensure to add this definition to the Helm values file, it will create four pod templates that we will be using in our Jenkins pipelines.</p><pre><code>podTemplates:
+  spot: |
+    - name: spot
+      yaml: |-
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          annotations:
+            cluster-autoscaler.kubernetes.io/safe-to-evict: &quot;false&quot;
+        spec:
+          terminationGracePeriodSeconds: 5
+          tolerations:
+          - key: &quot;kubernetes.azure.com/scalesetpriority&quot;
+            operator: &quot;Equal&quot;
+            value: &quot;spot&quot;
+            effect: &quot;NoSchedule&quot;
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: &quot;kubernetes.azure.com/scalesetpriority&quot;
+                    operator: In
+                    values:
+                    - &quot;spot&quot;
+  standard: |
+    - name: standard
+      yaml: |-
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          annotations:
+            cluster-autoscaler.kubernetes.io/safe-to-evict: &quot;false&quot;
+        spec:
+          terminationGracePeriodSeconds: 5
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: sku
+                    operator: In
+                    values:
+                    - standard
+  azcli_S: |
+    - name: azcli_S
+      containers:
+        - name: azcli
+          image: mcr.microsoft.com/azure-cli
+          ttyEnabled: true
+          command: &quot;sleep&quot;
+          args: &quot;99d&quot;
+          resourceRequestCpu: &quot;200m&quot;
+          resourceRequestMemory: &quot;512Mi&quot;
+          resourceLimitCpu: &quot;1&quot;
+          resourceLimitMemory: &quot;1024Mi&quot;
+  gradle_XL: |
+    - name: gradle_XL
+      volumes:
+        - hostPathVolume:
+            hostPath: &quot;/root/.docker&quot;
+            mountPath: &quot;/root/.docker&quot;
+      containers:
+        - name: docker
+          image: docker:19.03.1
+          command: &quot;sleep&quot;
+          args: &quot;99d&quot;
+          resourceRequestCpu: &quot;100m&quot;
+          resourceRequestMemory: &quot;512Mi&quot;
+          resourceLimitCpu: &quot;200m&quot;
+          resourceLimitMemory: &quot;1024Mi&quot;
+        - name: gradle
+          image: gradle:6.4.1-jdk11
+          command: &quot;sleep&quot;
+          args: &quot;99d&quot;
+          resourceRequestCpu: &quot;8&quot;
+          resourceRequestMemory: &quot;4024Mi&quot;
+          resourceLimitCpu: &quot;16&quot;
+          resourceLimitMemory: &quot;8024Mi&quot;
+</code></pre><p>What happens here:</p><ul><li><code>standard</code> and <code>spot</code> are the main templates from which all others will inherit they will indicate if a pod should be created on Spot VM
+pool or Standard VM pool, we are using <code>nodeAffinity</code> for that.</li><li><code>cluster-autoscaler.kubernetes.io/safe-to-evict: "false"</code> will prevent autoscaler from evicting pods from that node even if the node is underutilized</li><li><code>terminationGracePeriodSeconds: 5</code> will speed up the termination of pods once the pipeline has finished by reducing the default graceful shutdown period</li><li><code>azcli_S</code> and <code>gradle_XL</code> are templates that define agent containers. Azure CLI container will request a small number of resources and will be used only to deploy our image to K8s but the Gradle container is where most resource-hungry processing will be done so this container will request a large number of resources.</li><li>We are also using <code>docker:19.03.1</code> image inside <code>gradle_XL</code> template this is only so that we can log into Azure Container Registry therefore we allocate a very small amount of resources to this container</li></ul><blockquote><p><strong>Tip:</strong> When calculating agent pod size keep in mind that Jenkins will always add jnlp container to your pods which will require 100m CPU and 256Mi of memory.</p></blockquote><p>Now if you will port forward to jenkins UI</p><pre><code>kubectl port-forward services/jenkins 8080:8080 -n default
+</code></pre><p>and then go to Manage Jenkins -> Configure Cloud you should see that all templates were created:</p><p><img src=../../img/4/jenkins_templates.JPG alt></p><h2 id=running-multi-pod-pipeline>Running multi-pod pipeline</h2><p>Before we start I let the AKS seat there without doing anything just to trigger the spot node pool scale down.
+As you can see our <code>spotpool</code> has now 0 nodes.</p><p><img src=../../img/4/nodepool_scale_down.JPG alt></p><p>You can also use the following command to check the current status of Cluster Autoscaler and the latest activities:</p><pre><code>kubectl get configmap -n kube-system cluster-autoscaler-status -o yaml
+</code></pre><p>Now create pipeline in Jenkins with this content:</p><pre><code>  podTemplate(
+    inheritFrom: 'spot gradle_XL'
+  ) {
+      node(POD_LABEL) {
+          stage('Main Stage') {
+              container('docker') {
+                  stage('inside docker container stage') {
+                      withCredentials([string(credentialsId: 'sp_password', variable: 'SP_PASSWORD')]) {
+                        sh '''
+                          docker login pocacr123.azurecr.io --username d040e30f-3f94-43d0-8d22-000000000 --password $SP_PASSWORD
+                        '''
+                      }
+                  }
+              }
+              container('gradle') {
+                  stage('inside gradle container stage') {
+                      git 'https://github.com/rhollins/example-apps.git'
+                      sh '''
+                        cd ./gradle-spring-boot
+                        gradle build
+                        gradle jib
+                      '''
+                  }
+              }
+          }
+      }
+  }
+  podTemplate(
+    inheritFrom: 'spot azcli_S'
+  ) {
+      node(POD_LABEL) {
+          stage('Main Stage') {
+              container('azcli') {
+                  stage('inside azcli container stage') {
+                      sh '''
+                        az version
+                        az login --identity
+                        az aks get-credentials --name aks-wu --resource-group poc-rg --overwrite-existing --admin
+                        az aks install-cli
+                        kubectl run spring-boot-api-example-jib --image=pocacr123.azurecr.io/spring-boot-api-example-jib:mytag
+                      '''
+                  }
+              }
+          }
+      }
+  }
+</code></pre><p>This pipeline will first build artifacts then create a docker image and push it to Azure Container Registry then the first pod will be terminated and a new one create in which we deploy image built in previous stage.</p><p>We use <code>inheritFrom</code> for both templates <code>spot</code> and <code>gradle_XL</code> this will apply nodeAffininty rules from <code>spot</code> template to ensure our pipeline will run on Spot VM and then it will also inherit from the gradle template to use the Gradle container with specific resource requests and limits.</p><p>By separating different stages in different pods we are releasing resources when they are no longer needed (by deleting the pod) and can be consumed by other pipelines.</p><p>When you run the pipeline you will notice that the new pod just triggered a scale-up event which will take a minute or so to complete.</p><pre><code>Events:
+  Type     Reason            Age   From                Message
+  ----     ------            ----  ----                -------
+  Warning  FailedScheduling  19s   default-scheduler   0/2 nodes are available: 2 node(s) didn't match Pod's node affinity/selector.
+  Normal   TriggeredScaleUp  10s   cluster-autoscaler  pod triggered scale-up: [{aks-spotpool-42541666-vmss 0-&gt;1 (max: 4)}]
+</code></pre><p>It is important to strike the right balance between saving costs and not making it problematic for the Dev team who would have to wait each time they want to run the pipeline if Jenkins wasn&rsquo;t used and node pools have 0 nodes to execute on.
+Luckily Cluster Autoscaler has a lot of <a href=https://learn.microsoft.com/en-us/azure/aks/cluster-autoscaler#using-the-autoscaler-profile>settings</a> that you can play with.</p><p>Another option could be a scheduled dummy pipeline that will ensure nodes are provisioned and <em>warmed up</em> when you need them.</p><h3 id=using-parameters-to-switch-between-spot-and-standard-node-pools>Using parameters to switch between spot and standard node pools</h3><p>As mentioned at the beginning of this post one of the limitations of spot VMs is that it is not guaranteed that they will be provisioned by Azure when needed. One of the options to prepare for such an occasion is to change SKU template inside your pipeline from <code>spot</code> to <code>standard</code> which will force pipeline to execute on non spot VM pool.
+One way to do it is to update the pipeline in your source code (which requires new branch) and another is to just add a pipeline parameter that you can change on each run, here is an example.</p><p><img src=../../img/4/jenkins_param.JPG alt></p><pre><code>podTemplate ( inheritFrom: &quot;${params.sku} gradle_XL&quot;
+) {
+    node(POD_LABEL) {
+          //...
+        }
+    }
+}
+</code></pre><p>There is also another situation when you might want to always run the pipeline on standard SKU and not spot which is deployment to the production environment in which case you avoid issue of spot VM being deallocated in the middle of the deployment.</p><h2 id=final-thoughts>Final thoughts</h2><ul><li>We didn&rsquo;t cover monitoring but it will be crucial in this solution you need to ensure that you keep an eye on autoscaler events including failed provisioning of spot VMs. You should also monitor for <a href=https://learn.microsoft.com/en-us/azure/virtual-machines/linux/scheduled-events>Scheduled Events</a> which will allow you to take action or at least send an alert that Azure plan to deallocate your spot VM.</li></ul></div><div class=post-footer></div></article></main></body></html>
