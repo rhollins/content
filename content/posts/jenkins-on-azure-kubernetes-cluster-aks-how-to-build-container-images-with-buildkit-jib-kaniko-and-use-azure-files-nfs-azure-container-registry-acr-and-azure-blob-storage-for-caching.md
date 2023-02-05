@@ -14,6 +14,8 @@ This is second article from the series **Jenkins on Azure Kubernetes Cluster (AK
 
 2. Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching
 
+3. [Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines](https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines)
+
 Table of contents
 
 * [What we will cover in this article](#what-we-will-cover-in-this-article)

@@ -1,7 +1,7 @@
 ---
 title: "Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines"
-date: 2022-12-15T18:31:41Z
-draft: true
+date: 2023-02-04T13:31:41Z
+draft: false
 tags: [azure, aks, jenkins, autoscaler, spotvm]
 # 4
 ---
@@ -291,8 +291,8 @@ Another option could be a scheduled dummy pipeline that will ensure nodes are pr
 
 ### Using parameters to switch between spot and standard node pools
 
-As mentioned at the beginning of this post one of the limitations of spot VMs is that it is not guaranteed that they will be provisioned when needed. One of the options to prepare for such an occasion is to change SKU template inside your pipeline from `spot` to `standard`.
-One way to do it is to update the pipeline in your source code and another is to just add a pipeline parameter that you can change on each run, here is an example.
+As mentioned at the beginning of this post one of the limitations of spot VMs is that it is not guaranteed that they will be provisioned by Azure when needed. One of the options to prepare for such an occasion is to change SKU template inside your pipeline from `spot` to `standard` which will force pipeline to execute on non spot VM pool.
+One way to do it is to update the pipeline in your source code (which requires new branch) and another is to just add a pipeline parameter that you can change on each run, here is an example.
 
 ![](../../img/4/jenkins_param.JPG)
 
@@ -304,10 +304,10 @@ One way to do it is to update the pipeline in your source code and another is to
         }
     }
 
-There is also another situation when you might want to always run the pipeline on standard SKU and not spot which is deployed to the production environment in which case it would be better to avoid spot VM being deallocated in the middle of the deployment.
+There is also another situation when you might want to always run the pipeline on standard SKU and not spot which is deployment to the production environment in which case you avoid issue of spot VM being deallocated in the middle of the deployment.
 
 ## Final thoughts
 
-* We didn't cover monitoring but it will be crucial in this solution you need to ensure that you keep an eye on autoscaler events including failed provisioning of spot VMs. You should also monitor for [Scheduled Events](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/scheduled-events) which will allow you to take action or at least send a notification of which node will be affected.
+* We didn't cover monitoring but it will be crucial in this solution you need to ensure that you keep an eye on autoscaler events including failed provisioning of spot VMs. You should also monitor for [Scheduled Events](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/scheduled-events) which will allow you to take action or at least send an alert that Azure plan to deallocate your spot VM.
 
 
