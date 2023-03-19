@@ -74,7 +74,7 @@ If you will find Azure VM reservation to be a bad choice for your company howeve
 
 ### Reduce Azure Virtual Desktop (AVD) costs
 
-AVD became popular especially during the pandemic either by replacing employees physical desktops while work from home (WFH) or by replacing the company's physical disaster recovery sites with virtual machines in Azure.
+[AVD](https://learn.microsoft.com/en-us/azure/virtual-desktop/overview) became popular especially during the pandemic either by replacing employees physical desktops while work from home (WFH) or by replacing the company's physical disaster recovery sites with virtual machines in Azure.
 
 Some of what I already covered applies here as well but worth to mention a few more things:
 
@@ -100,7 +100,7 @@ Once it is established, Azure backup policies in both Azure Recovery Service Vau
 
 ### Utilize the archive tier for VM backups
 
-For VMs with higher churn (data change rate), it might be beneficial to move old data to the archive tier however they will be at this point converted from incremental to full recovery points. Similarly to buying a VM reservation it is a good idea to do some analysis to ensure that it will not cost more in the end.
+For VMs with higher churn (data change rate), it might be beneficial to move old data to the [archive tier](https://learn.microsoft.com/en-us/azure/backup/archive-tier-support) however they will be at this point converted from incremental to full recovery points. Similarly to buying a VM reservation it is a good idea to do some analysis to ensure that it will not cost more in the end.
 
 ## Storage costs
 
@@ -135,7 +135,7 @@ If you have for example only a few accounts that generate a huge amount of trans
 
 ### Monitor Azure Defender ingestion rate into Log Analytics Workspace
 
-When you enable Microsoft Defender and for example VM insight on your VMs it might be sometimes hard to say how much data each of your sources are sending to the log analytics workspace. In my case, I remember being surprised once, when it turns out that only one server was responsible for around 20% of overall ingestion charges. I would recommend [this](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-data-sources) workbook here which could help you identify high ingestion sources.
+When you enable Microsoft Defender and for example VM insight on your VMs it might be sometimes hard to say how much data each of your sources are sending to the log analytics workspace. In my case, I remember being surprised once, when it turns out that only one server was responsible for around 20% of overall ingestion charges. You can use Log Analytics Workspace Insights which could help you identify high ingestion sources.
 
 ### Reduce performance counters collection rate
 
