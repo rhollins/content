@@ -1,12 +1,80 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>azure on Rafal Hollins</title><link>https://rhollins.github.io/content/tags/azure/</link><description>Recent content in azure on Rafal Hollins</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 19 Mar 2023 10:31:41 +0000</lastBuildDate><atom:link href="https://rhollins.github.io/content/tags/azure/index.xml" rel="self" type="application/rss+xml"/><item><title>Proven methods to reduce Azure costs for medium size companies and enterprise clients</title><link>https://rhollins.github.io/content/posts/proven-methods-to-reduce-azure-costs-for-medium-size-companies-and-enterprise-clients/</link><pubDate>Sun, 19 Mar 2023 10:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/proven-methods-to-reduce-azure-costs-for-medium-size-companies-and-enterprise-clients/</guid><description>Table of contents
-Compute costs Utilize Spot VMs Utilize Burstable VM sizes Use VM Reserved Instances or Savings Plans Reduce Azure Virtual Desktop (AVD) costs Backup costs Reduce the amount of data stored through backup policies Utilize the archive tier for VM backups Storage costs Replace Premium managed disks with Standard SSD or Ephemeral where possible Use reservation for larger managed disks Utilize lifecycle and cheaper tiers on storage accounts Take care when enabling Microsoft Defender for Storage Ingestion costs Monitor Azure Defender ingestion rate into Log Analytics Workspace Reduce performance counters collection rate Reduce flow of container logs running in Azure Kubernetes Service Last thoughts After working with many clients over the years on their Azure cloud adoption journey, I found that cost optimization was an essential part of many projects I was working on.</description></item><item><title>Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</title><link>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines/</link><pubDate>Sat, 04 Feb 2023 13:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines/</guid><description>This is third article from the series Jenkins on Azure Kubernetes Cluster (AKS):
-Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure
-Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching
-Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</description></item><item><title>Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching</title><link>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/</link><pubDate>Sat, 07 Jan 2023 13:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/</guid><description>This is second article from the series Jenkins on Azure Kubernetes Cluster (AKS):
-Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure
-Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching
-Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</description></item><item><title>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure</title><link>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/</link><pubDate>Sat, 03 Dec 2022 18:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/</guid><description>This is first article from the series Jenkins on Azure Kubernetes Cluster (AKS):
-Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure
-Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching
-Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</description></item><item><title>Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS</title><link>https://rhollins.github.io/content/posts/configuring-conditional-forwarding-from-on-premise-domain-controller-dns-with-azure-dns-private-resolver-and-aks/</link><pubDate>Sun, 06 Nov 2022 18:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/configuring-conditional-forwarding-from-on-premise-domain-controller-dns-with-azure-dns-private-resolver-and-aks/</guid><description>Table of contents
-Create VNet Deploy AKS Create Azure private DNS zone Deploy NGINX ingress controller Deploy External DNS Deploy Sample Appplication Deploy and configure Azure DNS private resolver Configure conditional forwarding from DNS server Test if we can reach AKS service from on-premise Finall thoughts Aditional resources In this article, we will see how to resolve names of the K8s services running in AKS (Azure Kubernetes Service) from an on-premise desktop or server which is using DNS server running as part Active Directory Domain Controller.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Azure on Rafal Hollins</title><link>https://rhollins.github.io/content/tags/azure/</link><description>Recent content in Azure on Rafal Hollins</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 19 Mar 2023 10:31:41 +0000</lastBuildDate><atom:link href="https://rhollins.github.io/content/tags/azure/index.xml" rel="self" type="application/rss+xml"/><item><title>Proven methods to reduce Azure costs for medium size companies and enterprise clients</title><link>https://rhollins.github.io/content/posts/proven-methods-to-reduce-azure-costs-for-medium-size-companies-and-enterprise-clients/</link><pubDate>Sun, 19 Mar 2023 10:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/proven-methods-to-reduce-azure-costs-for-medium-size-companies-and-enterprise-clients/</guid><description>&lt;p>Table of contents&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#compute-costs">Compute costs&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#utilize-spot-vms">Utilize Spot VMs&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#utilize-burstable-vm-sizes">Utilize Burstable VM sizes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#use-vm-reserved-instances-or-savings-plans">Use VM Reserved Instances or Savings Plans&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#reduce-azure-virtual-desktop-avd-costs">Reduce Azure Virtual Desktop (AVD) costs&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#backup-costs">Backup costs&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#reduce-the-amount-of-data-stored-through-backup-policies">Reduce the amount of data stored through backup policies&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#utilize-the-archive-tier-for-vm-backups">Utilize the archive tier for VM backups&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#storage-costs">Storage costs&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#replace-premium-managed-disks-with-standard-ssd-or-ephemeral-where-possible">Replace Premium managed disks with Standard SSD or Ephemeral where possible&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#use-reservation-for-larger-managed-disks">Use reservation for larger managed disks&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#utilize-lifecycle-and-cheaper-tiers-on-storage-accounts">Utilize lifecycle and cheaper tiers on storage accounts&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#take-care-when-enabling-microsoft-defender-for-storage">Take care when enabling Microsoft Defender for Storage&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#ingestion-costs">Ingestion costs&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#monitor-azure-defender-ingestion-rate-into-log-analytics-workspace">Monitor Azure Defender ingestion rate into Log Analytics Workspace&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#reduce-performance-counters-collection-rate">Reduce performance counters collection rate&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#reduce-flow-of-container-logs-running-in-azure-kubernetes-service">Reduce flow of container logs running in Azure Kubernetes Service&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#last-thoughts">Last thoughts&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>After working with many clients over the years on their Azure cloud adoption journey, I found that cost optimization was an essential part of many projects I was working on. In general, I like to include cost analysis at the proof of concept (POC) stage as sometimes the costs themselves might outweigh the benefits of what we are building once it will scale up.&lt;/p></description></item><item><title>Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines</title><link>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines/</link><pubDate>Sat, 04 Feb 2023 13:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines/</guid><description>&lt;p>&lt;img src="../../img/4/header.jpg" alt="">&lt;/p>
+&lt;p>This is third article from the series &lt;strong>Jenkins on Azure Kubernetes Cluster (AKS)&lt;/strong>:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;a href="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/">Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/">Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines&lt;/p></description></item><item><title>Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching</title><link>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/</link><pubDate>Sat, 07 Jan 2023 13:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/</guid><description>&lt;p>&lt;img src="../../img/3/header.jpg" alt="">&lt;/p>
+&lt;p>This is second article from the series &lt;strong>Jenkins on Azure Kubernetes Cluster (AKS)&lt;/strong>:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;a href="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/">Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines">Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines&lt;/a>&lt;/p></description></item><item><title>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure</title><link>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/</link><pubDate>Sat, 03 Dec 2022 18:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-recover-jenkins-controller-from-azure-availability-zone-or-region-failure/</guid><description>&lt;p>&lt;img src="../../img/2/header.jpg" alt="">&lt;/p>
+&lt;p>This is first article from the series &lt;strong>Jenkins on Azure Kubernetes Cluster (AKS)&lt;/strong>:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>Jenkins on Azure Kubernetes Cluster (AKS) - How to recover Jenkins controller from Azure availability zone or region failure&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-how-to-build-container-images-with-buildkit-jib-kaniko-and-use-azure-files-nfs-azure-container-registry-acr-and-azure-blob-storage-for-caching/">Jenkins on Azure Kubernetes Cluster (AKS) - How to build container images with BuildKit, Jib, Kaniko and use Azure Files NFS, Azure Container Registry (ACR) and Azure Blob storage for caching&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://rhollins.github.io/content/posts/jenkins-on-azure-kubernetes-cluster-aks-flexible-and-cost-effective-jenkins-agents-with-kubernetes-cluster-autoscaler-and-azure-spot-virtual-machines">Jenkins on Azure Kubernetes Cluster (AKS) - Flexible and cost effective Jenkins Agents with Kubernetes Cluster Autoscaler and Azure Spot Virtual Machines&lt;/a>&lt;/p></description></item><item><title>Configuring Conditional Forwarding from On-Premise Domain Controller DNS with Azure DNS Private Resolver and AKS</title><link>https://rhollins.github.io/content/posts/configuring-conditional-forwarding-from-on-premise-domain-controller-dns-with-azure-dns-private-resolver-and-aks/</link><pubDate>Sun, 06 Nov 2022 18:31:41 +0000</pubDate><guid>https://rhollins.github.io/content/posts/configuring-conditional-forwarding-from-on-premise-domain-controller-dns-with-azure-dns-private-resolver-and-aks/</guid><description>&lt;p>&lt;img src="../../img/1/header.jpg" alt="">&lt;/p>
+&lt;p>Table of contents&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#create-vnet">Create VNet&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#deploy-aks">Deploy AKS&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#create-azure-private-dns-zone">Create Azure private DNS zone&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#deploy-nginx-ingress-controller">Deploy NGINX ingress controller&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#deploy-external-dns">Deploy External DNS&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#deploy-sample-appplication">Deploy Sample Appplication&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#deploy-and-configure-azure-dns-private-resolver">Deploy and configure Azure DNS private resolver&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#configure-conditional-forwarding-from-dns-server">Configure conditional forwarding from DNS server&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#test-if-we-can-reach-aks-service-from-on-premise">Test if we can reach AKS service from on-premise&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#finall-thoughts">Finall thoughts&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#aditional-resources">Aditional resources&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>In this article, we will see how to resolve names of the K8s services running in &lt;a href="https://azure.microsoft.com/en-us/products/kubernetes-service/#overview">AKS&lt;/a> (Azure Kubernetes Service) from an on-premise desktop or server which is using DNS server running as part Active Directory Domain Controller.
+The assumption is that the company has a private connection with Azure using offerings like Expressroute.&lt;/p></description></item></channel></rss>
