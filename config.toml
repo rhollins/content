@@ -28,11 +28,11 @@ theme = "m10c"
 
   # Default theme
   [params.style]
-   darkestColor = "#242930"
-   darkColor = "#353b43"
-   lightColor = "#c6c9cc"
-   lightestColor = "#ffffff"
-   primaryColor = "#8bbcf3"
+   darkestColor = "#252422"
+   darkColor = "#403d39"
+   lightColor = "#ccc5b9"
+   lightestColor = "#fffcf2"
+   primaryColor = "#eb5e28"
   #  primaryColor = "#57cc8a"
   #
   # Green theme
